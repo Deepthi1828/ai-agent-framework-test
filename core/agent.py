@@ -8,7 +8,7 @@ from tools.calculator import calculate
 class Agent:
     """
     Central controller of the AI Agent Framework.
-    Orchestrates task analysis, planning, reasoning, tool execution, and memory.
+    Handles task analysis, planning, reasoning, tool execution, and memory.
     """
 
     def __init__(self):
@@ -18,19 +18,20 @@ class Agent:
         # Store user input in memory
         self.memory.add(f"User Input: {user_input}")
 
-        # Analyze the task
+        # Analyze task type
         analysis = analyze_task(user_input)
         task_type = analysis["task_type"]
 
-        # ---------------- TOOL EXECUTION ----------------
+        # -------------------------------------------------
+        # TOOL EXECUTION (Task 1)
+        # -------------------------------------------------
         if task_type == "tool":
-            # Normalize input (case-insensitive)
-            expression = user_input.lower().replace("calculate", "").strip()
+            lower_input = user_input.lower()
 
-            # Execute calculation
+            # Extract expression safely after 'calculate'
+            expression = lower_input.split("calculate", 1)[1].strip()
+
             result = calculate(expression)
-
-            # Store result in memory
             self.memory.add(f"Tool Result: {result}")
 
             return (
@@ -40,14 +41,12 @@ class Agent:
                 f"Calculation Result : {result}"
             )
 
-        # ---------------- PLANNING / GENERAL TASKS ----------------
-        # Create execution plan
+        # -------------------------------------------------
+        # PLANNING & GENERAL TASKS (Task 2 & Task 3)
+        # -------------------------------------------------
         plan = create_plan(task_type, user_input)
-
-        # Generate reasoning for each step
         reasoning = generate_reasoning(plan)
 
-        # Build structured response
         response = (
             "AI Agent Execution\n"
             "------------------\n"
@@ -61,10 +60,7 @@ class Agent:
                 f"   Reason: {reason}\n"
             )
 
-        # Store response generation in memory
+        # Store completion in memory
         self.memory.add("Agent Response Generated")
 
-        return response
-
-        self.memory.add("Agent Response Generated")
         return response
