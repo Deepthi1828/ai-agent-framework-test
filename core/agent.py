@@ -2,39 +2,43 @@ from core.task_analyzer import analyze_task
 from core.planner import create_plan
 from core.reasoning import generate_reasoning
 from memory.memory import Memory
-from tools.calculator import calculate
 import re
 
 
 class Agent:
     """
     Central controller of the AI Agent Framework.
-    Handles task analysis, planning, reasoning, tool execution, and memory.
     """
 
     def __init__(self):
         self.memory = Memory()
 
+    # -------- LOCAL TOOL IMPLEMENTATION (NO IMPORT ISSUES) --------
+    def _calculate(self, expression: str) -> str:
+        try:
+            expression = expression.strip()
+            if not expression:
+                return "Invalid calculation"
+            return str(eval(expression))
+        except Exception:
+            return "Invalid calculation"
+
     def run(self, user_input: str) -> str:
-        # Store user input in memory
         self.memory.add(f"User Input: {user_input}")
 
-        # Analyze task type
         analysis = analyze_task(user_input)
         task_type = analysis["task_type"]
 
-        # ---------------- TOOL TASK (CALCULATOR) ----------------
+        # ---------------- TOOL TASK ----------------
         if task_type == "tool":
-            # Extract calculation expression using regex
             match = re.search(r'calculate\s+(.*)', user_input, re.IGNORECASE)
 
             if match:
-                expression = match.group(1).strip()
-                result = calculate(expression)
+                expression = match.group(1)
+                result = self._calculate(expression)
             else:
                 result = "Invalid calculation"
 
-            # Store result in memory
             self.memory.add(f"Tool Result: {result}")
 
             return (
@@ -44,7 +48,7 @@ class Agent:
                 f"Calculation Result : {result}"
             )
 
-        # ---------------- PLANNING & GENERAL TASKS ----------------
+        # ---------------- PLANNING & GENERAL ----------------
         plan = create_plan(task_type, user_input)
         reasoning = generate_reasoning(plan)
 
@@ -61,7 +65,5 @@ class Agent:
                 f"   Reason: {reason}\n"
             )
 
-        # Store completion in memory
         self.memory.add("Agent Response Generated")
-
         return response
