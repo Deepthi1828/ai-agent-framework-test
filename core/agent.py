@@ -1,5 +1,5 @@
 import tools.calculator
-print("Calculator file used:", tools.calculator.__file__)
+print(">>> REAL calculator path:", tools.calculator.__file__)
 from core.task_analyzer import analyze_task
 from core.planner import create_plan
 from core.reasoning import generate_reasoning
