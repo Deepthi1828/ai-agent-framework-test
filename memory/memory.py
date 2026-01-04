@@ -1,22 +1,17 @@
-from typing import List
-
-
 class Memory:
-    """
-    Memory module for storing and retrieving agent interactions.
-    """
-
     def __init__(self):
-        self.history: List[str] = []
+        self.history = []
 
-    def add(self, entry: str) -> None:
-        """
-        Store an entry in memory.
-        """
-        self.history.append(entry)
+    def add(self, query: str, response: str):
+        self.history.append({
+            "query": query,
+            "response": response
+        })
 
-    def get_all(self) -> List[str]:
-        """
-        Retrieve all stored memory entries.
-        """
+    def get_last(self):
+        if not self.history:
+            return None
+        return self.history[-1]
+
+    def get_all(self):
         return self.history
