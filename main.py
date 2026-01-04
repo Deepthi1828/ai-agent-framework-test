@@ -1,6 +1,6 @@
 from llm.mock_llm import MockLLM
 from core.intent_detector import detect_intent
-from core.tool_router import route_tool
+from core.agent import Agent
 from memory.memory import Memory
 
 
