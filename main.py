@@ -1,22 +1,38 @@
-from core.agent import Agent
+"""
+Main entry point for AI Agent Framework
+"""
+
+from llm.mock_llm import MockLLM
+
+
+class AIAgent:
+    def __init__(self, llm):
+        self.llm = llm
+
+    def handle_query(self, query: str) -> str:
+        """
+        Handles any user query using the LLM
+        """
+        return self.llm.generate(query)
 
 
 def main():
-    """
-    Entry point for the AI Agent Framework.
-    Initializes the agent and handles user interaction.
-    """
+    print("=== AI Agent Framework ===")
+    print("Type 'exit' to quit\n")
 
-    agent = Agent()
+    llm = MockLLM()
+    agent = AIAgent(llm)
 
-    print("AI Agent Framework")
-    print("------------------")
+    while True:
+        user_query = input("Enter your query: ")
 
-    user_input = input("Enter your task: ")
-    result = agent.run(user_input)
+        if user_query.lower() == "exit":
+            print("Exiting AI Agent. Goodbye!")
+            break
 
-    print("\nAgent Output:")
-    print(result)
+        response = agent.handle_query(user_query)
+        print("Agent Response:", response)
+        print("-" * 40)
 
 
 if __name__ == "__main__":
