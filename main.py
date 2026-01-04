@@ -1,39 +1,59 @@
-"""
-Main entry point for AI Agent Framework
-"""
-
 from llm.mock_llm import MockLLM
+from core.intent_detector import detect_intent
+from core.tool_router import route_tool
+from memory.memory import Memory
 
 
 class AIAgent:
     def __init__(self, llm):
         self.llm = llm
+        self.memory = Memory()
 
     def handle_query(self, query: str) -> str:
-        """
-        Handles any user query using the LLM
-        """
-        return self.llm.generate(query)
+        # Handle memory-based follow-up questions
+        if "last" in query.lower():
+            last = self.memory.get_last()
+            if last:
+                return f"Last Query: {last['query']} | Response: {last['response']}"
+            return "No previous memory available."
+
+        # Detect intent
+        intent = detect_intent(query)
+
+        # Route to appropriate tool
+        tool_result = route_tool(intent, query)
+
+        # Decide final response
+        if tool_result:
+            response = tool_result
+        else:
+            response = self.llm.generate(query)
+
+        # Store in memory
+        self.memory.add(query, response)
+        return response
 
 
 def main():
-    print("=== AI Agent Framework ===")
+    print("=== Intelligent AI Agent Framework ===")
     print("Type 'exit' to quit\n")
 
-    llm = MockLLM()
-    agent = AIAgent(llm)
+    agent = AIAgent(MockLLM())
 
     while True:
-        user_query = input("Enter your query: ")
+        query = input("Enter your query: ")
 
-        if user_query.lower() == "exit":
-            print("Exiting AI Agent. Goodbye!")
+        if query.lower() == "exit":
+            print("\nSession Memory:")
+            for item in agent.memory.get_all():
+                print(f"- {item['query']} -> {item['response']}")
             break
 
-        response = agent.handle_query(user_query)
+        response = agent.handle_query(query)
         print("Agent Response:", response)
         print("-" * 40)
 
 
 if __name__ == "__main__":
+    main()
     main()
